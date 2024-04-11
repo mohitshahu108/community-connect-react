@@ -1,35 +1,29 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
+import { ChakraProvider } from "@chakra-ui/react";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import LandingPage from "./pages/Landing";
+import theme from "./styles/thems";
+import routes from "./routes";
+import VolunteerLogin from "./pages/VolunteerLogin";
+import VolunteerSignUp from "./pages/VolunteerSignUp";
+import OrganizationSignUp from "./pages/OrganizationSignUp";
+import OrganizationLogin from "./pages/OrganizationLogin";
 
 function App() {
-  const [count, setCount] = useState(0);
-
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+    <ChakraProvider theme={theme}>
+      <BrowserRouter>
+        <Routes>
+          <Route path={routes.landing} element={<LandingPage />} />
 
-    </>
+          <Route path={routes.volunteer.login} element={<VolunteerLogin />} />
+          <Route path={routes.volunteer.signup} element={<VolunteerSignUp />} />
+
+          <Route path={routes.organization.login} element={<OrganizationLogin />} />
+          <Route path={routes.organization.signup} element={<OrganizationSignUp />} />
+        </Routes>
+      </BrowserRouter>
+    </ChakraProvider>
   );
 }
 
