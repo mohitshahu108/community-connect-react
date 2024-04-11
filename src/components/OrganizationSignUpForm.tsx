@@ -1,31 +1,52 @@
 import { useState } from "react";
 import {
- Flex, Stack, Avatar, Heading,
- Box, FormControl, InputGroup, Input,
- InputRightElement, Button, 
- InputLeftAddon, FormErrorMessage, 
- Card, Square, Link
+  Flex,
+  Stack,
+  Avatar,
+  Heading,
+  Box,
+  FormControl,
+  InputGroup,
+  Input,
+  InputRightElement,
+  Button,
+  InputLeftAddon,
+  FormErrorMessage,
+  Card,
+  Square,
+  Link
 } from "@chakra-ui/react";
 import { FaUserAlt, FaLock } from "react-icons/fa";
 import { Formik, Form, Field, FieldProps, FormikHelpers } from "formik";
 import * as Yup from "yup";
 import { Link as RouterLink } from "react-router-dom";
 import routes from "../routes";
+import AuthApis from "../service/auth/AuthApis";
+import Role from "../service/auth/Role";
 
 // Define validation schema using Yup
 const SignupSchema = Yup.object().shape({
- firstname: Yup.string().required("Required"),
- lastname: Yup.string().required("Required"),
- email: Yup.string().email("Invalid email").required("Required"),
- password: Yup.string().min(8, "Password is too short - should be 8 chars minimum.").required("Required")
+  firstname: Yup.string().required("Required"),
+  lastname: Yup.string().required("Required"),
+  email: Yup.string().email("Invalid email").required("Required"),
+  password: Yup.string().min(8, "Password is too short - should be 8 chars minimum.").required("Required")
 });
 
+const handleSubmit = async (
+  values: { firstname: string; lastname: string; email: string; password: string },
+  { setSubmitting }: FormikHelpers<{ firstname: string; lastname: string; email: string; password: string }>
+): Promise<void> => {
+  try {
+    const result = await AuthApis.register({ ...values, role: Role.ORGANIZATION });
+  } catch (error) {}
+};
+
 const OrganizationSignupForm = () => {
- const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
- const handleShowClick = () => setShowPassword(!showPassword);
+  const handleShowClick = () => setShowPassword(!showPassword);
 
- return (
+  return (
     <Flex flexDirection="column" width="100wh" height="100vh" bg="gray.200" justifyContent="center" alignItems="center">
       <Card boxShadow="md" py={20}>
         <Stack flexDir="column" mb="2" justifyContent="center" alignItems="center">
@@ -38,14 +59,11 @@ const OrganizationSignupForm = () => {
             <Formik
               initialValues={{ firstname: "", lastname: "", email: "", password: "" }}
               validationSchema={SignupSchema}
-              onSubmit={(values, { setSubmitting }: FormikHelpers<{ firstname: string; lastname: string; email: string; password: string }>) => {
-                alert(JSON.stringify(values, null, 2));
-                setSubmitting(false);
-              }}
+              onSubmit={handleSubmit}
             >
               {({ isSubmitting, handleSubmit }) => (
                 <Form onSubmit={handleSubmit} noValidate>
-                 <Stack spacing={4} p="1rem">
+                  <Stack spacing={4} p="1rem">
                     <Field name="firstname">
                       {({ field, form }: FieldProps) => (
                         <FormControl isInvalid={Boolean(form.errors.firstname && form.touched.firstname)}>
@@ -143,7 +161,7 @@ const OrganizationSignupForm = () => {
                     >
                       Sign Up
                     </Button>
-                 </Stack>
+                  </Stack>
                 </Form>
               )}
             </Formik>
@@ -152,14 +170,14 @@ const OrganizationSignupForm = () => {
         <Box>
           <Square>
             Already Registered?{" "}
-            <Link as={RouterLink} to={routes.organization.login} color="green.500" >
-              Log In 
+            <Link as={RouterLink} to={routes.organization.login} color="green.500">
+              Log In
             </Link>
           </Square>
         </Box>
       </Card>
     </Flex>
- );
+  );
 };
 
 export default OrganizationSignupForm;
