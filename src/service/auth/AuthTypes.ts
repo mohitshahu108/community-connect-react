@@ -15,4 +15,10 @@ export namespace AuthTypes {
     refresh_token: string;
   };
 
+
+  export type AuthenticationRequest = {
+    email: string;
+    password: string;
+  }
+
 }

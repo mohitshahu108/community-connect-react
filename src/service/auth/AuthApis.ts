@@ -21,6 +21,21 @@ class AuthApis {
       return { errorMessage: `Error during registration: ${error}` };
     }
   }
+
+  static authenticate = async (
+    req: AuthTypes.AuthenticationRequest
+  ): Promise<{ data?: AuthTypes.AuthenticationResponse; errorMessage?: string }> => {
+    try {
+      const response: AuthTypes.AuthenticationResponse = await api.post({
+        url: "auth/authenticate",
+        data: req
+      });
+      console.log(response)
+      return { data: response };
+    } catch (error) {
+      return { errorMessage: `Error during authentication: ${error}` };
+    }
+  };
 }
 
 export default AuthApis;

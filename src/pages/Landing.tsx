@@ -4,14 +4,15 @@ import { FaUser, FaBuilding } from "react-icons/fa";
 import { Link as RouterLink } from "react-router-dom";
 import backgroundImage from "./../assets/images/premium_photo-1682092618317-9b50d60e6e0d.avif";
 import routes from "./../routes";
+import { observer } from "mobx-react";
 
-const Landing = () => {
+const Landing = observer(() => {
   return (
     <Box
       display="flex"
       justifyContent="center"
       alignItems="center"
-      minHeight="100vh"
+      minHeight="86vh"
       bgImage={`url(${backgroundImage})`}
       bgSize="cover"
       bgPosition="center"
@@ -62,6 +63,6 @@ const Landing = () => {
       </Square>
     </Box>
   );
-};
+});
 
 export default Landing;

@@ -26,7 +26,6 @@ class AxiosService {
 
     // Request interceptor to add auth token from local storage
     this.axiosInstance.interceptors.request.use((config) => {
-      console.log("authToken")
       const token = localStorage.getItem("authToken");
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
