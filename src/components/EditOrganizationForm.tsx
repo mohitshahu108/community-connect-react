@@ -26,6 +26,7 @@ type EditOrganizationFormPropsType = {
 };
 
 const EditOrganizationForm = observer(({ isOpen, onClose }: EditOrganizationFormPropsType) => {
+
   const store = useStore();
   const handleSubmit = async (
     values: OrganizationTypes.Organization,

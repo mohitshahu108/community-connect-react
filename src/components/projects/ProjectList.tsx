@@ -4,14 +4,14 @@ import "ag-grid-community/styles/ag-grid.css"; // Core CSS
 import "ag-grid-community/styles/ag-theme-quartz.css"; // Theme
 import { ColDef, ModuleRegistry } from "ag-grid-community";
 import { ClientSideRowModelModule } from "ag-grid-community";
-import { Box, Button, Flex, IconButton } from "@chakra-ui/react";
-import ProjectApis from "../service/Project/ProjectApis";
-import { ProjectTypes } from "../service/Project/ProjectTypes";
-import useStore from "../stores/useStore";
-import AddProjectForm from "./AddProjectForm";
+import { Box, Button, Center, Flex, IconButton, Toast } from "@chakra-ui/react";
+import ProjectApis from "../../service/Project/ProjectApis";
+import { ProjectTypes } from "../../service/Project/ProjectTypes";
+import useStore from "../../stores/useStore";
+import AddProjectForm from "../AddProjectForm";
 import { observer } from "mobx-react";
 import { FaEdit, FaTrash } from "react-icons/fa";
-import EditProject from "./projects/EditProject";
+import EditProject from "./EditProject";
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
 // Create new GridExample component
@@ -26,7 +26,7 @@ const ProjectList = observer(() => {
   const [colDefs] = useState<ColDef[]>([
     {
       field: "name",
-      headerName: "Mission",
+      headerName: "Name",
       checkboxSelection: true
     },
     {
@@ -48,7 +48,10 @@ const ProjectList = observer(() => {
     },
     {
       field: "skills",
-      headerName: "Skills"
+      headerName: "Skills",
+      cellRenderer: useCallback(({ data }: any) => {
+        return data?.skills?.map((item: { id: number; name: string }) => item.name).join(", ");
+      }, [])
     },
     {
       field: "volunteers",
@@ -71,25 +74,47 @@ const ProjectList = observer(() => {
 
           return (
             <Flex alignItems="center" bg="transparent" _hover={{ bg: "transparent" }}>
-              <IconButton
-                size="sm"
-                aria-label="edit"
-                border={"none"}
-                icon={<FaEdit />}
-                color="green.500"
-                variant="outline"
-                onClick={onEditClick}
-              />
-              <IconButton
-                size="sm"
-                border={"none"}
-                ml={2}
-                aria-label="delete"
-                color="green.500"
-                icon={<FaTrash />}
-                variant="outline"
-                onClick={onDeleteClick}
-              />
+              {store.isOrganization && (
+                <>
+                  <IconButton
+                    size="sm"
+                    aria-label="edit"
+                    border={"none"}
+                    icon={<FaEdit />}
+                    color="green.500"
+                    variant="outline"
+                    onClick={onEditClick}
+                  />
+                  <IconButton
+                    size="sm"
+                    border={"none"}
+                    ml={2}
+                    aria-label="delete"
+                    color="green.500"
+                    icon={<FaTrash />}
+                    variant="outline"
+                    onClick={onDeleteClick}
+                  />
+                </>
+              )}
+              {store.isVolunteer && (
+                <Button
+                  size="sm"
+                  colorScheme="blue"
+                  ml={2}
+                  aria-label="apply"
+                  onClick={() => {
+                    Toast({
+                      title: "Applying...",
+                      status: "info",
+                      duration: 2000,
+                      isClosable: true
+                    });
+                  }}
+                >
+                  Apply
+                </Button>
+              )}
             </Flex>
           );
         },
@@ -132,23 +157,31 @@ const ProjectList = observer(() => {
 
   return (
     <>
-      {isEditOpen && editProjectId && <EditProject projectId={editProjectId} isOpen={isEditOpen} onClose={onEditClose} />}
-      {isAddOpen && <AddProjectForm isOpen={isAddOpen} onClose={onAddFormClose} />}
+      {store.isOrganization && (
+        <>
+          {isEditOpen && editProjectId && (
+            <EditProject projectId={editProjectId} isOpen={isEditOpen} onClose={onEditClose} />
+          )}
+          {isAddOpen && <AddProjectForm isOpen={isAddOpen} onClose={onAddFormClose} />}
+        </>
+      )}
 
       <Box display="flex" flexDirection="row" justifyContent="center" alignItems="center" height="calc(100vh - 4rem)">
         <Box width="5rem" />
-        <Box width="70vw" height="100%" style={{ flexGrow: 1 }}>
-          <Box my={4}>
-            <Button
-              type="button"
-              borderRadius={0}
-              variant="solid"
-              colorScheme="green"
-              onClick={() => setIsAddOpen(true)}
-            >
-              Add Project
-            </Button>
-          </Box>
+        <Box width="70vw" height="100%" py={4} style={{ flexGrow: 1 }}>
+          {store.isOrganization && (
+            <Center>
+              <Button
+                type="button"
+                borderRadius={0}
+                variant="solid"
+                colorScheme="green"
+                onClick={() => setIsAddOpen(true)}
+              >
+                Add Project
+              </Button>
+            </Center>
+          )}
           <div className="ag-theme-quartz" style={{ height: "80%" }}>
             <AgGridReact rowData={projectList} columnDefs={colDefs} defaultColDef={defaultColDef} pagination={true} />
           </div>
@@ -160,5 +193,3 @@ const ProjectList = observer(() => {
 });
 
 export default ProjectList;
-
-

@@ -19,17 +19,51 @@ import {
 import { FaUserAlt, FaLock } from "react-icons/fa";
 import { Formik, Form, Field, FieldProps, FormikHelpers } from "formik";
 import * as Yup from "yup";
-import { Link } from "react-router-dom";
-import routes from "./../routes";
+import { Link, useNavigate } from "react-router-dom";
+import routes from "../../routes";
+import UserApis from "../../service/user/UserApis";
+import useStore from "../../stores/useStore";
+import { useAuth } from "../../hooks/useAuth";
+import AuthApis from "../../service/auth/AuthApis";
 
 // Define validation schema using Yup
 const LoginSchema = Yup.object().shape({
   email: Yup.string().email("Invalid email").required("Required"),
-  password: Yup.string().min(8, "Password is too short - should be 8 chars minimum.").required("Required")
+  password: Yup.string().min(4, "Password is too short - should be 4 chars minimum.").required("Required")
 });
 
 const VolunteerLoginForm = () => {
+  const store = useStore();
+  const auth = useAuth();
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+
+  const getCurrentUser = async () => {
+    try {
+      const result = await UserApis.currentUser();
+      store.setCurrentUser(result);
+      auth?.login(result);
+      navigate(routes.volunteer.profile);
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
+  const handleSubmit = async (
+    values: { email: string; password: string },
+    { setSubmitting }: FormikHelpers<{ email: string; password: string }>
+  ) => {
+    try {
+      const response = await AuthApis.authenticate(values);
+      if (response.data) {
+        store.saveToLocalStorage(response.data);
+        await getCurrentUser();
+      }
+      setSubmitting(false);
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
 
   const handleShowClick = () => setShowPassword(!showPassword);
 
@@ -43,14 +77,7 @@ const VolunteerLoginForm = () => {
           <Avatar bg="blue.500" />
           <Heading color="blue.500">Welcome</Heading>
           <Box minW={{ base: "90%", md: "468px" }}>
-            <Formik
-              initialValues={{ email: "", password: "" }}
-              validationSchema={LoginSchema}
-              onSubmit={(values, { setSubmitting }: FormikHelpers<{ email: string; password: string }>) => {
-                alert(JSON.stringify(values, null, 2));
-                setSubmitting(false);
-              }}
-            >
+            <Formik initialValues={{ email: "", password: "" }} validationSchema={LoginSchema} onSubmit={handleSubmit}>
               {({ isSubmitting, handleSubmit }) => (
                 <Form onSubmit={handleSubmit} noValidate>
                   <Stack spacing={4} p="1rem">

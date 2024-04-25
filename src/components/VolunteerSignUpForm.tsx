@@ -1,30 +1,75 @@
 import { useState } from "react";
 import {
- Flex, Stack, Avatar, Heading,
- Box, FormControl, InputGroup, Input,
- InputRightElement, Button, 
- InputLeftAddon, FormErrorMessage, 
- Card, Square, Link
+  Flex,
+  Stack,
+  Avatar,
+  Heading,
+  Box,
+  FormControl,
+  InputGroup,
+  Input,
+  InputRightElement,
+  Button,
+  InputLeftAddon,
+  FormErrorMessage,
+  Card,
+  Square,
+  Link
 } from "@chakra-ui/react";
 import { FaUserAlt, FaLock } from "react-icons/fa";
 import { Formik, Form, Field, FieldProps, FormikHelpers } from "formik";
 import * as Yup from "yup";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
+import AuthApis from "../service/auth/AuthApis";
+import Role from "../service/auth/Role";
+import useStore from "./../stores/useStore";
+import UserApis from "../service/user/UserApis";
+import { useAuth } from "./../hooks/useAuth";
 
 // Define validation schema using Yup
 const VolunteerSignupSchema = Yup.object().shape({
- firstname: Yup.string().required("Required"),
- lastname: Yup.string().required("Required"),
- email: Yup.string().email("Invalid email").required("Required"),
- password: Yup.string().min(8, "Password is too short - should be 8 chars minimum.").required("Required")
+  firstname: Yup.string().required("Required"),
+  lastname: Yup.string().required("Required"),
+  email: Yup.string().email("Invalid email").required("Required"),
+  password: Yup.string().min(8, "Password is too short - should be 8 chars minimum.").required("Required")
 });
 
 const VolunteerSignupForm = () => {
- const [showPassword, setShowPassword] = useState(false);
+  const store = useStore();
+  const auth = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
- const handleShowClick = () => setShowPassword(!showPassword);
+  const handleShowClick = () => setShowPassword(!showPassword);
+  const getCurrentUser = async () => {
+    try {
+      const result = await UserApis.currentUser();
+      store.setCurrentUser(result);
+      auth?.login(result);
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
 
- return (
+  const handleSubmit = async (
+    values: { firstname: string; lastname: string; email: string; password: string },
+    { setSubmitting }: FormikHelpers<{ firstname: string; lastname: string; email: string; password: string }>
+  ): Promise<void> => {
+    setSubmitting(true);
+    try {
+      const response = await AuthApis.register({ ...values, role: Role.VOLUNTEER });
+      if(response.data){
+        store.saveToLocalStorage(response.data);
+        await getCurrentUser();
+        setSubmitting(false);
+      }
+    } catch (error) {
+      console.log(error);
+      setSubmitting(false);
+    }
+  };
+
+  return (
     <Flex flexDirection="column" width="100wh" height="100vh" bg="gray.200" justifyContent="center" alignItems="center">
       <Card boxShadow="md" py={20}>
         <Stack flexDir="column" mb="2" justifyContent="center" alignItems="center">
@@ -37,14 +82,11 @@ const VolunteerSignupForm = () => {
             <Formik
               initialValues={{ firstname: "", lastname: "", email: "", password: "" }}
               validationSchema={VolunteerSignupSchema}
-              onSubmit={(values, { setSubmitting }: FormikHelpers<{ firstname: string; lastname: string; email: string; password: string }>) => {
-                alert(JSON.stringify(values, null, 2));
-                setSubmitting(false);
-              }}
+              onSubmit={handleSubmit}
             >
               {({ isSubmitting, handleSubmit }) => (
                 <Form onSubmit={handleSubmit} noValidate>
-                 <Stack spacing={4} p="1rem">
+                  <Stack spacing={4} p="1rem">
                     <Field name="firstname">
                       {({ field, form }: FieldProps) => (
                         <FormControl isInvalid={Boolean(form.errors.firstname && form.touched.firstname)}>
@@ -142,7 +184,7 @@ const VolunteerSignupForm = () => {
                     >
                       Sign Up
                     </Button>
-                 </Stack>
+                  </Stack>
                 </Form>
               )}
             </Formik>
@@ -151,14 +193,14 @@ const VolunteerSignupForm = () => {
         <Box>
           <Square>
             Already Registered?{" "}
-            <Link as={RouterLink} to={"/volunteer/login"} color="blue.500" >
-              Log In 
+            <Link as={RouterLink} to={"/volunteer/login"} color="blue.500">
+              Log In
             </Link>
           </Square>
         </Box>
       </Card>
     </Flex>
- );
+  );
 };
 
 export default VolunteerSignupForm;

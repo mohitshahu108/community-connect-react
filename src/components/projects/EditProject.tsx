@@ -1,11 +1,10 @@
-import { Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, Square } from "@chakra-ui/react";
+import { Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Square } from "@chakra-ui/react";
 import { CircularProgress } from "@chakra-ui/react";
 import { FormikHelpers } from "formik";
 import { observer } from "mobx-react";
 import React from "react";
 import ProjectApis from "../../service/Project/ProjectApis";
 import { ProjectTypes } from "../../service/Project/ProjectTypes";
-import useStore from "../../stores/useStore";
 import ProjectForm from "./ProjectForm";
 
 type EditProjectFormPropsType = {
@@ -15,16 +14,11 @@ type EditProjectFormPropsType = {
 };
 
 const EditProject = observer(({ isOpen, onClose, projectId }: EditProjectFormPropsType) => {
-  const store = useStore();
   const [project, setProject] = React.useState<ProjectTypes.Project | null>(null);
 
   React.useEffect(() => {
     const fetchProject = async () => {
       const result = await ProjectApis.getProjectById(projectId);
-      
-      if (result.skillIds === null) {
-        result.skillIds = [];
-      }
       setProject(result);
     };
 

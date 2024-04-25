@@ -14,7 +14,8 @@ import { StoreContext } from "./stores/useStore";
 import Layout from "./layouts/layout";
 import ProtectedRoute from "./routes/protectedRoute";
 import { AuthProvider } from "./hooks/useAuth";
-import ProjectList from "./components/ProjectList";
+import ProjectList from "./components/projects/ProjectList";
+import VolunteerProfile from "./components/volunteers/VolunteerProfile";
 
 function App() {
   return (
@@ -37,6 +38,15 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <OrganizationProfile />
+                    </ProtectedRoute>
+                  }
+                />
+
+                <Route
+                  path={routes.volunteer.profile}
+                  element={
+                    <ProtectedRoute>
+                      <VolunteerProfile />
                     </ProtectedRoute>
                   }
                 />

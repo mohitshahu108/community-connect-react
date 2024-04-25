@@ -14,8 +14,6 @@ type AddProjectFormPropsType = {
 const AddProjectForm = observer(({ isOpen, onClose }: AddProjectFormPropsType) => {
   const store = useStore();
   const handleSubmit = async (values: ProjectTypes.Project, actions: FormikHelpers<ProjectTypes.Project>) => {
-    const skillIdsNumber = values.skillIds.map(id => Number(id));
-    values.skillIds = skillIdsNumber;
     const result = await ProjectApis.addProject(values);
     actions.setSubmitting(false);
     onClose();
@@ -30,6 +28,7 @@ const AddProjectForm = observer(({ isOpen, onClose }: AddProjectFormPropsType) =
           <ModalCloseButton />
           <ModalBody>
             <ProjectForm
+              isAdd
               initialValue={
                 {
                   id: null,
@@ -39,7 +38,7 @@ const AddProjectForm = observer(({ isOpen, onClose }: AddProjectFormPropsType) =
                   timeCommitment: 0,
                   status: "",
                   organizationId: store.currentOrganization?.id,
-                  skillIds: [],
+                  skills: [],
                   volunteerIds: []
                 } as ProjectTypes.Project
               }

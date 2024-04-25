@@ -1,11 +1,24 @@
+import api from "../../api/api";
+import { VolunteerTypes } from "./VolunteerTypes";
+
 class VolunteerApis {
-  public static async demoApiCall(): Promise<{ data?: any; errorMessage?: string }> {
+  static async getVolunteerByUserId(userId: number) {
     try {
-      const response = await fetch("https://jsonplaceholder.typicode.com/todos/1");
-      const data = await response.json();
-      return { data };
+      const response: VolunteerTypes.Volunteer = await api.get({ url: `/volunteers/byUserId/${userId}` });
+      return response;
     } catch (error) {
-      return { errorMessage: `API Call Failed: ${error}` };
+      throw error;
+    }
+  }
+
+static async editVolunteer(volunteerId: number, volunteer: VolunteerTypes.Volunteer) {
+    try {
+      const response: VolunteerTypes.Volunteer = await api.put({ url: `/volunteers/${volunteerId}`, data: volunteer });
+      return response;
+    } catch (error) {
+      throw error;
     }
   }
 }
+
+export default VolunteerApis;

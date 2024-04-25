@@ -1,3 +1,5 @@
+import { SkillTypes } from "service/skill/SkillTypes";
+
 export namespace ProjectTypes {
   export type Project = {
     id: number | null;
@@ -7,7 +9,7 @@ export namespace ProjectTypes {
     timeCommitment: number;
     status: string;
     organizationId: number;
-    skillIds: number[];
+    skills: SkillTypes.Skill[];
     volunteerIds: number[];
   };
 

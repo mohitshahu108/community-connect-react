@@ -5,6 +5,7 @@ import routes from "../routes";
 import { useAuth } from "../hooks/useAuth";
 import { observer } from "mobx-react";
 import { Link as RouterLink } from "react-router-dom";
+import { toJS } from "mobx";
 
 const NavBar = observer(() => {
   const store = useStore();
@@ -15,6 +16,9 @@ const NavBar = observer(() => {
     ? store.currentOrganization?.name
     : store.currentVolunteer?.firstname + " " + store.currentVolunteer?.lastname;
   const navColor = isOrganization ? "green.500" : "blue.500";
+
+  console.log(toJS(currentUser));
+  console.log("fullName", fullName);
 
   return (
     <Flex as="nav" align="center" justify="space-between" p={4} bg={navColor}>

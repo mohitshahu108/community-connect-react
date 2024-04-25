@@ -22,10 +22,10 @@ import * as Yup from "yup";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import routes from "./../routes";
 import AuthApis from "../service/auth/AuthApis";
-import { AuthTypes } from "../service/auth/AuthTypes";
 import UserApis from "../service/user/UserApis";
 import useStore from "../stores/useStore";
 import { useAuth } from "../hooks/useAuth";
+import { observer } from "mobx-react";
 
 // Define validation schema using Yup
 const LoginSchema = Yup.object().shape({
@@ -33,15 +33,11 @@ const LoginSchema = Yup.object().shape({
   password: Yup.string().min(8, "Password is too short - should be 8 chars minimum.").required("Required")
 });
 
-const OrganizationLoginForm = () => {
+const OrganizationLoginForm = observer(() => {
   const store = useStore();
   const auth = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-  const saveToLocalStorage = (data: AuthTypes.AuthenticationResponse) => {
-    localStorage.setItem("authToken", data.access_token);
-    localStorage.setItem("refreshToken", data.refresh_token);
-  };
 
   const getCurrentUser = async () => {
     try {
@@ -61,7 +57,7 @@ const OrganizationLoginForm = () => {
     try {
       const response = await AuthApis.authenticate(values);
       if (response.data) {
-        saveToLocalStorage(response.data);
+        store.saveToLocalStorage(response.data);
         await getCurrentUser();
       }
       setSubmitting(false);
@@ -159,6 +155,6 @@ const OrganizationLoginForm = () => {
       </Card>
     </Flex>
   );
-};
+});
 
 export default OrganizationLoginForm;

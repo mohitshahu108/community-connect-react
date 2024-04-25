@@ -1,25 +1,10 @@
-import {
-  Stack,
-  FormControl,
-  FormLabel,
-  Input,
-  FormErrorMessage,
-  Select,
-  NumberInput,
-  NumberInputField,
-  NumberInputStepper,
-  NumberIncrementStepper,
-  NumberDecrementStepper,
-  Flex,
-  Button
-} from "@chakra-ui/react";
-import AddSkillForm from "./../../components/skills/AddSkillForm";
+import { Stack, FormControl, FormLabel, Input, FormErrorMessage, Select, Flex, Button } from "@chakra-ui/react";
 import { Formik, Field, FieldProps, Form, FormikHelpers } from "formik";
 import { observer } from "mobx-react";
-import React, { useEffect, useState } from "react";
 import { ProjectTypes } from "../../service/Project/ProjectTypes";
 import useStore from "../../stores/useStore";
 import * as Yup from "yup";
+import SkillsPicker from "../../components/skills/SkillsPicker";
 
 type ProjectFormPropsType = {
   initialValue: ProjectTypes.Project;
@@ -28,10 +13,10 @@ type ProjectFormPropsType = {
   isAdd?: boolean;
 };
 
+export const PROJECT_FORM_NAME = "project-form";
+
 const ProjectForm = observer(({ initialValue, handleSubmit, onClose, isAdd }: ProjectFormPropsType) => {
-    console.log("initialValue",initialValue);
   const store = useStore();
-  const [isSkillFormOpen, setIsSkillFormOpen] = useState(false);
   const ProjectSchema = Yup.object().shape({
     name: Yup.string().required("Name is required"),
     description: Yup.string().required("Description is required"),
@@ -39,23 +24,21 @@ const ProjectForm = observer(({ initialValue, handleSubmit, onClose, isAdd }: Pr
     timeCommitment: Yup.number().required("Time commitment is required"),
     status: Yup.string().required("Status is required"),
     organizationId: Yup.number(),
-    skillIds: Yup.array().of(Yup.number()).required("Skill IDs are required"),
-    volunteerIds: Yup.array().of(Yup.number())
+    skills: Yup.array()
+      .of(
+        Yup.object().shape({
+          id: Yup.number().required(),
+          name: Yup.string().required()
+        })
+      )
+      .required("Skill IDs are required")
   });
-  const onSkillFormClose = () => {
-    store.fetchSkills();
-    setIsSkillFormOpen(false);
-  };
 
-  useEffect(() => {
-    store.fetchSkills();
-  }, []);
   return (
     <>
-      {isSkillFormOpen && <AddSkillForm isOpen={isSkillFormOpen} onClose={onSkillFormClose} />}
       <Formik initialValues={initialValue} validationSchema={ProjectSchema} onSubmit={handleSubmit}>
         {({ isSubmitting, handleSubmit, errors, touched, values, setFieldValue }) => (
-          <Form onSubmit={handleSubmit} noValidate>
+          <Form id={PROJECT_FORM_NAME} onSubmit={handleSubmit} noValidate>
             <Stack spacing={4} p="1rem">
               <Field name="name">
                 {({ field }: FieldProps) => (
@@ -105,57 +88,31 @@ const ProjectForm = observer(({ initialValue, handleSubmit, onClose, isAdd }: Pr
               </Field>
 
               <Field name="timeCommitment">
-                {({ field }: FieldProps) => (
-                  <FormControl isInvalid={Boolean(errors.timeCommitment && touched.timeCommitment)}>
-                    <FormLabel>Time commitment</FormLabel>
-                    <NumberInput defaultValue={0} min={0}>
-                      <NumberInputField
-                        {...field}
-                        type="number"
-                        placeholder="Time commitment"
-                        borderColor="green.500"
-                      />
-                      <NumberInputStepper>
-                        <NumberIncrementStepper />
-                        <NumberDecrementStepper />
-                      </NumberInputStepper>
-                    </NumberInput>
-                    <FormErrorMessage>{errors.timeCommitment}</FormErrorMessage>
-                  </FormControl>
-                )}
+                {({ field }: FieldProps) => {
+                  return (
+                    <FormControl isInvalid={Boolean(errors.timeCommitment && touched.timeCommitment)}>
+                      <FormLabel>Time commitment (hours)</FormLabel>
+                      <Input {...field} type="number" />
+                      <FormErrorMessage>{errors.timeCommitment}</FormErrorMessage>
+                    </FormControl>
+                  );
+                }}
               </Field>
 
-              <Field name="skillIds">
-                {({ field }: FieldProps) => (
-                  <FormControl isInvalid={Boolean(errors.skillIds && touched.skillIds)}>
-                    <FormLabel>Skill IDs</FormLabel>
-                    <Flex>
-                      <Select
-                        {...field}
-                        itemType="number"
-                        multiple
-                        placeholder="Skill IDs"
-                        focusBorderColor="green.500"
-                        marginRight={"4px"}
-                      >
-                        {store.skills.map((skill) => (
-                          <option key={skill.id} value={skill.id}>
-                            {skill.name}
-                          </option>
-                        ))}
-                      </Select>
-                      <Button onClick={() => setIsSkillFormOpen(true)}>Add</Button>
-                    </Flex>
-                    <FormErrorMessage>{errors.skillIds}</FormErrorMessage>
-                  </FormControl>
-                )}
-              </Field>
+              <SkillsPicker name="skills" />
             </Stack>
             <Flex mb={"15px"} justifyContent={"end"}>
               <Button borderRadius={0} variant="outline" colorScheme="green" mr={3} onClick={onClose}>
                 Close
               </Button>
-              <Button borderRadius={0} type="submit" variant="solid" colorScheme="green" isLoading={isSubmitting}>
+              <Button
+                borderRadius={0}
+                form={PROJECT_FORM_NAME}
+                type="submit"
+                variant="solid"
+                colorScheme="green"
+                isLoading={isSubmitting}
+              >
                 {isAdd ? "Add" : "Update"}
               </Button>
             </Flex>

@@ -5,15 +5,16 @@ import SkillApis from "../service/skill/SkillApis";
 import { SkillTypes } from "../service/skill/SkillTypes";
 import { UserTypes } from "../service/user/UserTypes";
 import { VolunteerTypes } from "../service/volunteer/VolunteerTypes";
+import { AuthTypes } from "../service/auth/AuthTypes";
+import Role from "../service/auth/Role";
 
 export class Store {
-
-  public readonly PROJECT_STATUSES: { label: string, value: string, description: string }[] = [
+  public readonly PROJECT_STATUSES: { label: string; value: string; description: string }[] = [
     { label: "NEW", value: "NEW", description: "Just Created" },
     { label: "ACTIVE", value: "ACTIVE", description: "Work Under Progress" },
     { label: "INACTIVE", value: "INACTIVE", description: "Halted" },
     { label: "OPEN", value: "OPEN", description: "Ready to Work" },
-    { label: "CLOSED", value: "CLOSED", description: "Completed" },
+    { label: "CLOSED", value: "CLOSED", description: "Completed" }
   ];
 
   listProject: ProjectTypes.ProjectList = [];
@@ -72,17 +73,22 @@ export class Store {
     this.currentUser = value;
   };
 
-
-  public fetchSkills = async () =>{
+  public fetchSkills = async () => {
     try {
-     const result = await SkillApis.getSkillList();
-     this.skills = result;
+      const result = await SkillApis.getSkillList();
+      this.skills = result;
     } catch (error) {
-     console.log("Error while fetching skills", error); 
+      console.log("Error while fetching skills", error);
     }
-  } 
+  };
 
+  saveToLocalStorage = (data: AuthTypes.AuthenticationResponse) => {
+    localStorage.setItem("authToken", data.access_token);
+    localStorage.setItem("refreshToken", data.refresh_token);
+  };
 
+ isOrganization = this.currentUser?.role === Role.ORGANIZATION;
+ isVolunteer = this.currentUser?.role === Role.VOLUNTEER;
 }
 
 const store = new Store();
