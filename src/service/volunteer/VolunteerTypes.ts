@@ -1,3 +1,4 @@
+import { AssetTypes } from "service/asset/AssetTypes";
 import { SkillTypes } from "service/skill/SkillTypes";
 
 export namespace VolunteerTypes {
@@ -11,5 +12,6 @@ export namespace VolunteerTypes {
     availabilityEndDate: Date;
     skills: SkillTypes.Skill[];
     userId: number;
+    profilePhoto?: AssetTypes.Asset;
   };
 }

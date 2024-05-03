@@ -1,19 +1,18 @@
 import { ReactNode, useEffect, useState } from "react";
 import VolunteerApis from "../../service/volunteer/VolunteerApis";
 import useStore from "../../stores/useStore";
-import { Avatar, Box, Button, Center, Flex, Square, Text } from "@chakra-ui/react";
+import { Box, Button, Flex, Text } from "@chakra-ui/react";
 import EditVolunteerForm from "./EditVolunteersProfileForm";
 import { observer } from "mobx-react";
-import { toJS } from "mobx";
+import ProfilePhotoPicker from "../../components/common/ProfilePhotoPicker";
+import Role from "../../service/auth/Role";
 
 const VolunteerProfile = observer(() => {
   const store = useStore();
   const currentUser = store.currentUser;
   const currentVolunteer = store.currentVolunteer;
-
-  console.log(toJS(currentVolunteer));
-
   const [isVolunteerFormOpen, setIsVolunteerFormOpen] = useState(false);
+  const [imageLoading, setImageLoading] = useState<boolean>(false);
 
   const getCurrentVolunteer = async () => {
     try {
@@ -23,6 +22,37 @@ const VolunteerProfile = observer(() => {
       }
     } catch (error) {
       console.log("error", error);
+    }
+  };
+
+  const profileFormData = new FormData();
+  const onChangeProfilePhoto = (file: File) => {
+    if (currentVolunteer?.id) {
+      profileFormData.append("assetFileName", file.name);
+      profileFormData.append("assetableId", currentVolunteer?.id.toString());
+      profileFormData.append("assetableType", Role.VOLUNTEER);
+      profileFormData.append("profilePic", file);
+    }
+  };
+
+  const onCancelProfilePhoto = () => {
+    profileFormData.delete("assetfilename");
+    profileFormData.delete("assetableid");
+    profileFormData.delete("assetableType");
+    profileFormData.delete("profilePic");
+  };
+
+  const onSaveProfilePhoto = async (onSaveSuccessCallback: () => void) => {
+    try {
+      setImageLoading(true);
+      const result = await VolunteerApis.updateProfilePic(profileFormData);
+      await getCurrentVolunteer();
+      // no reload is required just updating currentUser
+      setImageLoading(false);
+      onSaveSuccessCallback();
+    } catch (error) {
+      setImageLoading(false);
+      console.log(error);
     }
   };
 
@@ -41,13 +71,14 @@ const VolunteerProfile = observer(() => {
         <Box flex={"80%"}>
           <Flex justifyContent={"center"} alignItems={"center"}>
             <Box flex={"50%"}>
-              <Square>
-                <Avatar
-                  size="2xl"
-                  name={currentVolunteer?.firstname + " " + currentUser?.lastname}
-                  src="path/to/avatar.jpg"
-                />
-              </Square>
+              <ProfilePhotoPicker
+                sourceUrl={currentVolunteer?.profilePhoto?.s3Url}
+                avatarName={store.fullName}
+                onChangeImageCallBack={onChangeProfilePhoto}
+                onSaveImageCallBack={onSaveProfilePhoto}
+                onCancelImageCallBack={onCancelProfilePhoto}
+                loading={imageLoading}
+              />
             </Box>
             <Box flex={"50%"} mt={30}>
               <Text fontSize="xl" fontWeight="bold" mb={2}>

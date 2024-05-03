@@ -11,9 +11,18 @@ class VolunteerApis {
     }
   }
 
-static async editVolunteer(volunteerId: number, volunteer: VolunteerTypes.Volunteer) {
+  static async editVolunteer(volunteerId: number, volunteer: VolunteerTypes.Volunteer) {
     try {
       const response: VolunteerTypes.Volunteer = await api.put({ url: `/volunteers/${volunteerId}`, data: volunteer });
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async updateProfilePic(formData: FormData) {
+    try {
+      const response: VolunteerTypes.Volunteer = await api.uploadFile({ url: "/volunteers/profile_pic", formData });
       return response;
     } catch (error) {
       throw error;

@@ -7,6 +7,8 @@ import { observer } from "mobx-react";
 import { UserTypes } from "service/user/UserTypes";
 import { useLocalStorage } from "./useLocalStorage";
 import routes from "../routes";
+import { OrganizationTypes } from "../service/organization/OrganizationTypes";
+import { VolunteerTypes } from "../service/volunteer/VolunteerTypes";
 type contextType = {
   user: UserTypes.User | null;
   login: (data: UserTypes.User) => Promise<void>;
@@ -21,7 +23,15 @@ export const AuthProvider = observer(({ children }: { children: ReactNode }) => 
   const user = store.currentUser;
   const setUser = store.setCurrentUser;
   const navigate = useNavigate();
-  const [locaCurrentUser, setLocalCurrentUser] = useLocalStorage("currentUser", null);
+  const [localCurrentUser, setLocalCurrentUser] = useLocalStorage("currentUser", null as UserTypes.User | null);
+  const [localCurrentOrganization, setLocalCurrentOrganization] = useLocalStorage(
+    "currentOrganization",
+    null as OrganizationTypes.Organization | null
+  );
+  const [localCurrentVolunteer, setLocalCurrentVolunteer] = useLocalStorage(
+    "currentVolunteer",
+    null as VolunteerTypes.Volunteer | null
+  );
 
   // call this function when you want to authenticate the user
   const login = async (data: UserTypes.User) => {
@@ -38,6 +48,8 @@ export const AuthProvider = observer(({ children }: { children: ReactNode }) => 
   const logout = () => {
     setUser(null);
     setLocalCurrentUser(null);
+    setLocalCurrentOrganization(null);
+    setLocalCurrentVolunteer(null);
     navigate("/", { replace: true });
   };
 

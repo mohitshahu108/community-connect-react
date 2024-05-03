@@ -46,7 +46,8 @@ class AxiosService {
     } else {
       console.error("Request error", error);
       if (error.response && error.response.status === 403) {
-        localStorage.removeItem("authToken");
+        // localStorage.removeItem("authToken");
+        // TODO: fix it once backend for this fixed
       } else if (error.response && error.response.status === 400) {
         console.error("Bad request", error.response.data);
       }
@@ -84,15 +85,13 @@ class AxiosService {
 
   public uploadFile<T = any>({
     url,
-    file,
+    formData,
     config
   }: {
     url: string;
-    file: File;
+    formData: FormData;
     config?: AxiosRequestConfig;
   }): Promise<T> {
-    const formData = new FormData();
-    formData.append("file", file);
 
     return this.axiosInstance.post(url, formData, {
       ...config,

@@ -27,6 +27,22 @@ export class Store {
     return null;
   }
 
+  getDefaultCurrentOrganization(): OrganizationTypes.Organization | null {
+    const org = localStorage.getItem("currentOrganization");
+    if (org) {
+      return JSON.parse(org);
+    }
+    return null;
+  }
+
+  getDefaultCurrentVolunteer(): VolunteerTypes.Volunteer | null {
+    const vol = localStorage.getItem("currentVolunteer");
+    if (vol) {
+      return JSON.parse(vol);
+    }
+    return null;
+  }
+
   skills: SkillTypes.ListSkills = [];
 
   currentUser: UserTypes.User | null = this.getDefaultCurrentUser();
@@ -35,19 +51,21 @@ export class Store {
     return this.currentUser?.firstname + " " + this.currentUser?.lastname;
   }
 
-  currentOrganization: OrganizationTypes.Organization | null = null;
-  currentVolunteer: VolunteerTypes.Volunteer | null = null;
+  currentOrganization: OrganizationTypes.Organization | null = this.getDefaultCurrentOrganization();
+  currentVolunteer: VolunteerTypes.Volunteer | null = this.getDefaultCurrentVolunteer();
 
   public getCurrentOrganization(): OrganizationTypes.Organization | null {
     return this.currentOrganization;
   }
   public setCurrentOrganization(value: OrganizationTypes.Organization | null) {
+    localStorage.setItem("currentOrganization", JSON.stringify(value));
     this.currentOrganization = value;
   }
   public getCurrentVolunteer(): VolunteerTypes.Volunteer | null {
     return this.currentVolunteer;
   }
   public setCurrentVolunteer(value: VolunteerTypes.Volunteer | null) {
+    localStorage.setItem("currentVolunteer", JSON.stringify(value));
     this.currentVolunteer = value;
   }
 
@@ -87,8 +105,8 @@ export class Store {
     localStorage.setItem("refreshToken", data.refresh_token);
   };
 
- isOrganization = this.currentUser?.role === Role.ORGANIZATION;
- isVolunteer = this.currentUser?.role === Role.VOLUNTEER;
+  isOrganization = this.currentUser?.role === Role.ORGANIZATION;
+  isVolunteer = this.currentUser?.role === Role.VOLUNTEER;
 }
 
 const store = new Store();
