@@ -1,12 +1,27 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Box, Heading, Button, VStack, Card, CardBody, Text, Link, Flex, Square } from "@chakra-ui/react";
 import { FaUser, FaBuilding } from "react-icons/fa";
 import { Link as RouterLink } from "react-router-dom";
 import backgroundImage from "./../assets/images/premium_photo-1682092618317-9b50d60e6e0d.avif";
 import routes from "./../routes";
 import { observer } from "mobx-react";
+import api from "../api/api";
 
 const Landing = observer(() => {
+  const calltest = async () =>{
+    try {
+      const result = await api.get({url: "auth/test"}); 
+      console.log(result);
+    } catch (error) {
+      
+    }
+  }
+
+  useEffect(()=>{
+    calltest();
+  },[])
+
+
   return (
     <Box
       display="flex"
