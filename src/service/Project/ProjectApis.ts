@@ -37,18 +37,6 @@ class ProjectApis {
     }
   };
 
-  static applyOnProject = async (
-    projectId: number,
-    payload: { projectId: number; volunteerId: number }
-  ): Promise<ProjectTypes.Project> => {
-    try {
-      const result: ProjectTypes.Project = await api.put({ url: `projects/${projectId}/apply`, data: payload });
-      return result;
-    } catch (error) {
-      throw error;
-    }
-  };
-
   static deleteProject = async (projectId: number): Promise<void> => {
     try {
       await api.delete({ url: `projects/${projectId}` });

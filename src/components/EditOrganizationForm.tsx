@@ -11,7 +11,8 @@ import {
   Input,
   Button,
   Stack,
-  FormErrorMessage
+  FormErrorMessage,
+  useToast
 } from "@chakra-ui/react";
 import { Formik, Form, Field, FieldProps, FormikHelpers } from "formik";
 import * as Yup from "yup";
@@ -26,6 +27,7 @@ type EditOrganizationFormPropsType = {
 };
 
 const EditOrganizationForm = observer(({ isOpen, onClose }: EditOrganizationFormPropsType) => {
+  const toast = useToast();
 
   const store = useStore();
   const handleSubmit = async (
@@ -33,7 +35,13 @@ const EditOrganizationForm = observer(({ isOpen, onClose }: EditOrganizationForm
     actions: FormikHelpers<OrganizationTypes.Organization>
   ) => {
     if (store?.currentOrganization?.id) {
-      const result = await OrganizationApis.editOrganization(values, store?.currentOrganization?.id);
+      const updateOrganizationProm = OrganizationApis.editOrganization(values, store?.currentOrganization?.id);
+      const result = await updateOrganizationProm;
+      toast.promise(updateOrganizationProm, {
+          success: { title: 'Success', description: 'Organization Profile updated successfully' },
+          error: { title: 'Error', description: 'Something wrong' },
+          loading: { title: 'Loading', description: 'Please wait' },
+        })
       store.setCurrentOrganization(result);
       actions.setSubmitting(false);
       onClose();

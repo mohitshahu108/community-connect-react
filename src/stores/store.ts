@@ -79,7 +79,9 @@ export class Store {
       currentOrganization: observable,
       currentVolunteer: observable,
       fullName: computed,
-      listProject: observable
+      listProject: observable,
+      isOrganization: computed,
+      isVolunteer: computed
     });
   }
 
@@ -105,8 +107,13 @@ export class Store {
     localStorage.setItem("refreshToken", data.refresh_token);
   };
 
-  isOrganization = this.currentUser?.role === Role.ORGANIZATION;
-  isVolunteer = this.currentUser?.role === Role.VOLUNTEER;
+  get isOrganization() {
+    return this.currentUser?.role === Role.ORGANIZATION;
+  }
+
+  get isVolunteer() {
+    return this.currentUser?.role === Role.VOLUNTEER;
+  }
 }
 
 const store = new Store();

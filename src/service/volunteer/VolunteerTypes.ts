@@ -14,4 +14,10 @@ export namespace VolunteerTypes {
     userId: number;
     profilePhoto?: AssetTypes.Asset;
   };
+
+  export type VolunteerLk = {
+    id: number;
+    firstname: string;
+    lastname: string;
+  };
 }

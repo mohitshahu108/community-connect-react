@@ -50,6 +50,11 @@ export const AuthProvider = observer(({ children }: { children: ReactNode }) => 
     setLocalCurrentUser(null);
     setLocalCurrentOrganization(null);
     setLocalCurrentVolunteer(null);
+
+    store.setCurrentUser(null);
+    store.setCurrentOrganization(null);
+    store.setCurrentVolunteer(null);
+
     navigate("/", { replace: true });
   };
 

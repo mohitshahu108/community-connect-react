@@ -4,7 +4,7 @@ import "ag-grid-community/styles/ag-grid.css"; // Core CSS
 import "ag-grid-community/styles/ag-theme-quartz.css"; // Theme
 import { ColDef, ModuleRegistry } from "ag-grid-community";
 import { ClientSideRowModelModule } from "ag-grid-community";
-import { Box, Button, Flex, IconButton, Tooltip } from "@chakra-ui/react";
+import { Box, Button, Flex, IconButton, Tooltip, useToast } from "@chakra-ui/react";
 import ProjectApis from "../../service/Project/ProjectApis";
 import { ProjectTypes } from "../../service/Project/ProjectTypes";
 import useStore from "../../stores/useStore";
@@ -12,16 +12,22 @@ import AddProjectForm from "../AddProjectForm";
 import { observer } from "mobx-react";
 import { FaEdit, FaHandPointRight, FaTrash } from "react-icons/fa";
 import EditProject from "./EditProject";
+import { Link } from "react-router-dom";
+import routes from "../../routes";
+import ApplicationApis from "../../service/application/ApplicationApis";
+import { ApplicationStatuses, ApplicationTypes } from "../../service/application/ApplicationTypes";
+
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
 // Create new GridExample component
 const ProjectList = observer(() => {
+  const toast = useToast();
   const store = useStore();
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editProjectId, setEditProjectId] = useState<number>();
   const projectList: ProjectTypes.ProjectList = store.listProject;
-
+  
   const getProjectList = useCallback(async () => {
     try {
       const result = await ProjectApis.getProjectList();
@@ -34,10 +40,17 @@ const ProjectList = observer(() => {
   const onApplyOnProject = async (project: ProjectTypes.Project) => {
     try {
       if (project?.id && store.currentVolunteer?.id) {
-        const result = await ProjectApis.applyOnProject(project?.id, {
+        const applicationProm = ApplicationApis.apply({
           projectId: project.id,
-          volunteerId: store.currentVolunteer?.id
+          volunteerId: store.currentVolunteer?.id,
+          status: ApplicationStatuses.PENDING
         });
+        toast.promise(applicationProm, {
+          success: { title: "Success", description: "Applied on project" },
+          error: { title: "Error", description: "Something wrong" },
+          loading: { title: "Loading", description: "Please wait" }
+        });
+        const result = await applicationProm; 
         getProjectList();
       }
     } catch (error) {
@@ -50,7 +63,20 @@ const ProjectList = observer(() => {
     {
       field: "name",
       headerName: "Name",
-      checkboxSelection: true
+      checkboxSelection: true,
+      cellRenderer: (params: any) => {
+        return (
+          <Link
+            to={
+              store.isVolunteer
+                ? routes.volunteer.project.details(params.data.id)
+                : routes.organization.project.details(params.data.id)
+            }
+          >
+            {params.data.name}
+          </Link>
+        );
+      }
     },
     {
       field: "location",
@@ -73,11 +99,22 @@ const ProjectList = observer(() => {
       headerName: "Skills",
       cellRenderer: useCallback(({ data }: any) => {
         return data?.skills?.map((item: { id: number; name: string }) => item.name).join(", ");
-      }, [])
+      }, []),
+      filterValueGetter: (params: any) => {
+        return params.data?.skills?.map((item: any) => item.name).join(", ");
+      }
     },
     {
       field: "volunteers",
-      headerName: "Volunteers"
+      headerName: "Volunteers",
+      cellRenderer: useCallback(({ data }: any) => {
+        return data?.volunteers?.map((volunteer: { id: number, firstname: string, lastname: string }) => {
+          return `${volunteer.firstname} ${volunteer.lastname}`;
+        }).join(", ");
+      }, []),
+      filterValueGetter: (params: any) => {
+        return params.data?.volunteers?.map((volunteer: any) => volunteer.firstname + " " + volunteer.lastname).join(", ");
+      }
     },
     {
       field: "action",
@@ -93,6 +130,9 @@ const ProjectList = observer(() => {
             await ProjectApis.deleteProject(data.id);
             await getProjectList();
           };
+
+          const isAlreadyApplied = data?.applications?.findIndex((app: ApplicationTypes.Application) => app.volunteerId === store?.currentVolunteer?.id) !== -1;
+          const isAlreadyAppliedApproved = data?.volunteers?.findIndex((vol: any) => vol.id === store?.currentVolunteer?.id) !== -1;
 
           return (
             <Flex alignItems="center" bg="transparent" _hover={{ bg: "transparent" }}>
@@ -119,7 +159,8 @@ const ProjectList = observer(() => {
                   />
                 </>
               )}
-              {store.isVolunteer && (
+
+              {store.isVolunteer && !isAlreadyAppliedApproved && !isAlreadyApplied && (
                 <Tooltip label="Apply to contribute in project" hasArrow placement="top">
                   <IconButton
                     size="sm"

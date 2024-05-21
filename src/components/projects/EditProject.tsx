@@ -1,4 +1,4 @@
-import { Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Square } from "@chakra-ui/react";
+import { Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Square, useToast } from "@chakra-ui/react";
 import { CircularProgress } from "@chakra-ui/react";
 import { FormikHelpers } from "formik";
 import { observer } from "mobx-react";
@@ -6,6 +6,7 @@ import React from "react";
 import ProjectApis from "../../service/Project/ProjectApis";
 import { ProjectTypes } from "../../service/Project/ProjectTypes";
 import ProjectForm from "./ProjectForm";
+import useStore from "../../stores/useStore";
 
 type EditProjectFormPropsType = {
   isOpen: boolean;
@@ -14,7 +15,9 @@ type EditProjectFormPropsType = {
 };
 
 const EditProject = observer(({ isOpen, onClose, projectId }: EditProjectFormPropsType) => {
+  const store = useStore();
   const [project, setProject] = React.useState<ProjectTypes.Project | null>(null);
+  const toast = useToast();
 
   React.useEffect(() => {
     const fetchProject = async () => {
@@ -28,8 +31,16 @@ const EditProject = observer(({ isOpen, onClose, projectId }: EditProjectFormPro
   }, [projectId, project]);
 
   const handleSubmit = async (values: ProjectTypes.Project, actions: FormikHelpers<ProjectTypes.Project>) => {
-    console.log(values);
-    const result = await ProjectApis.updateProject(projectId, values);
+    if (store?.currentOrganization?.id) {
+      values.organizationId = store?.currentOrganization?.id;
+    }
+    const editProjectProm = ProjectApis.updateProject(projectId, values);
+    const result = await editProjectProm; 
+    toast.promise(editProjectProm, {
+      success: { title: "Success", description: "Project Updated" },
+      error: { title: "Error", description: "Something wrong" },
+      loading: { title: "Loading", description: "Please wait" }
+    });
     actions.setSubmitting(false);
     onClose();
   };

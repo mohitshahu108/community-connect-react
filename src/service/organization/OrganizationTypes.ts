@@ -1,3 +1,4 @@
+import { AssetTypes } from "service/asset/AssetTypes";
 import { ProjectTypes } from "service/Project/ProjectTypes";
 export namespace OrganizationTypes{
     export type Organization = {
@@ -8,5 +9,6 @@ export namespace OrganizationTypes{
         website: string;
         projects: ProjectTypes.Project[];
         userId: number;
+        profilePhoto?: AssetTypes.Asset;
     };
 }

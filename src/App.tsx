@@ -16,11 +16,13 @@ import ProtectedRoute from "./routes/protectedRoute";
 import { AuthProvider } from "./hooks/useAuth";
 import ProjectList from "./components/projects/ProjectList";
 import VolunteerProfile from "./components/volunteers/VolunteerProfile";
+import OrganizationProjectDetails from "./components/projects/OrganizationProjectDetails";
+import VolunteerProjectDetails from "./components/projects/VolunteerProjectDetails";
 
 function App() {
   return (
     <StoreContext.Provider value={store}>
-      <ChakraProvider theme={theme}>
+      <ChakraProvider theme={theme}  toastOptions={{ defaultOptions: { position: 'top-right' } }}>
         <BrowserRouter>
           <AuthProvider>
             <Layout>
@@ -51,11 +53,39 @@ function App() {
                   }
                 />
 
+
+                <Route
+                  path={routes.volunteer.project.list}
+                  element={
+                    <ProtectedRoute>
+                      <ProjectList />
+                    </ProtectedRoute>
+                  }
+                />
+
                 <Route
                   path={routes.organization.project.list}
                   element={
                     <ProtectedRoute>
                       <ProjectList />
+                    </ProtectedRoute>
+                  }
+                />
+
+                <Route
+                  path={routes.organization.project.details(':id')}
+                  element={
+                    <ProtectedRoute>
+                      <OrganizationProjectDetails />
+                    </ProtectedRoute>
+                  }
+                />
+
+                <Route
+                  path={routes.volunteer.project.details(':id')}
+                  element={
+                    <ProtectedRoute>
+                      <VolunteerProjectDetails />
                     </ProtectedRoute>
                   }
                 />

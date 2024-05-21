@@ -1,4 +1,4 @@
-import { Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay } from "@chakra-ui/react";
+import { Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, useToast } from "@chakra-ui/react";
 import { FormikHelpers } from "formik";
 import ProjectApis from "../service/Project/ProjectApis";
 import { ProjectTypes } from "../service/Project/ProjectTypes";
@@ -13,8 +13,18 @@ type AddProjectFormPropsType = {
 
 const AddProjectForm = observer(({ isOpen, onClose }: AddProjectFormPropsType) => {
   const store = useStore();
+  const toast = useToast();
   const handleSubmit = async (values: ProjectTypes.Project, actions: FormikHelpers<ProjectTypes.Project>) => {
-    const result = await ProjectApis.addProject(values);
+    if(store.currentOrganization?.id){
+      values.organizationId = store.currentOrganization?.id;
+    }
+    const addProjectProm = ProjectApis.addProject(values); 
+    const result = await addProjectProm;
+    toast.promise(addProjectProm, {
+      success: { title: "Success", description: "Project Created" },
+      error: { title: "Error", description: "Something wrong" },
+      loading: { title: "Loading", description: "Please wait" }
+    });
     actions.setSubmitting(false);
     onClose();
   };

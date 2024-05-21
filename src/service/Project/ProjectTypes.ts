@@ -1,4 +1,6 @@
+import { ApplicationTypes } from "service/application/ApplicationTypes";
 import { SkillTypes } from "service/skill/SkillTypes";
+import { VolunteerTypes } from "service/volunteer/VolunteerTypes";
 
 export namespace ProjectTypes {
   export type Project = {
@@ -10,7 +12,8 @@ export namespace ProjectTypes {
     status: string;
     organizationId: number;
     skills: SkillTypes.Skill[];
-    volunteerIds: number[];
+    applications: ApplicationTypes.ApplicationList;
+    volunteers: VolunteerTypes.VolunteerLk[];
   };
 
   export type ProjectList = Project[];

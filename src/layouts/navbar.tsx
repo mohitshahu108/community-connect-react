@@ -26,7 +26,11 @@ const NavBar = observer(() => {
         </Link>
 
         {currentUser && (
-          <Link as={RouterLink} ml={4} to={routes.organization.project.list}>
+          <Link
+            as={RouterLink}
+            ml={4}
+            to={isOrganization ? routes.organization.project.list : routes.volunteer.project.list}
+          >
             <Text fontSize="xl" fontWeight="bold" color="white">
               Projects
             </Text>

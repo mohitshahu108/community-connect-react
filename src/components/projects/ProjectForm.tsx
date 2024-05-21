@@ -1,4 +1,4 @@
-import { Stack, FormControl, FormLabel, Input, FormErrorMessage, Select, Flex, Button } from "@chakra-ui/react";
+import { Stack, FormControl, FormLabel, Input, FormErrorMessage, Select, Flex, Button, Textarea } from "@chakra-ui/react";
 import { Formik, Field, FieldProps, Form, FormikHelpers } from "formik";
 import { observer } from "mobx-react";
 import { ProjectTypes } from "../../service/Project/ProjectTypes";
@@ -54,7 +54,7 @@ const ProjectForm = observer(({ initialValue, handleSubmit, onClose, isAdd }: Pr
                 {({ field }: FieldProps) => (
                   <FormControl isInvalid={Boolean(errors.description && touched.description)}>
                     <FormLabel>Description</FormLabel>
-                    <Input {...field} type="text" placeholder="Description" focusBorderColor="green.500" />
+                    <Textarea {...field} placeholder="Description" focusBorderColor="green.500" />
                     <FormErrorMessage>{errors.description}</FormErrorMessage>
                   </FormControl>
                 )}

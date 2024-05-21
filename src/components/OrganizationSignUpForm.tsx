@@ -23,6 +23,9 @@ import { Link as RouterLink } from "react-router-dom";
 import routes from "../routes";
 import AuthApis from "../service/auth/AuthApis";
 import Role from "../service/auth/Role";
+import useStore from "../stores/useStore";
+import UserApis from "../service/user/UserApis";
+import { useAuth } from "../hooks/useAuth";
 
 // Define validation schema using Yup
 const SignupSchema = Yup.object().shape({
@@ -32,19 +35,37 @@ const SignupSchema = Yup.object().shape({
   password: Yup.string().min(8, "Password is too short - should be 8 chars minimum.").required("Required")
 });
 
-const handleSubmit = async (
-  values: { firstname: string; lastname: string; email: string; password: string },
-  { setSubmitting }: FormikHelpers<{ firstname: string; lastname: string; email: string; password: string }>
-): Promise<void> => {
-  try {
-    const result = await AuthApis.register({ ...values, role: Role.ORGANIZATION });
-  } catch (error) {}
-};
-
 const OrganizationSignupForm = () => {
+  const store = useStore();
+  const auth = useAuth();
   const [showPassword, setShowPassword] = useState(false);
 
   const handleShowClick = () => setShowPassword(!showPassword);
+
+  const getCurrentUser = async () => {
+    try {
+      const result = await UserApis.currentUser();
+      store.setCurrentUser(result);
+      auth?.login(result);
+    } catch (error) {
+      console.log("error", error);
+    }
+  }
+
+  const handleSubmit = async (
+    values: { firstname: string; lastname: string; email: string; password: string },
+    { setSubmitting }: FormikHelpers<{ firstname: string; lastname: string; email: string; password: string }>
+  ): Promise<void> => {
+    setSubmitting(true);
+    try {
+      const response = await AuthApis.register({ ...values, role: Role.ORGANIZATION });
+      if (response.data) {
+        store.saveToLocalStorage(response.data);
+        await getCurrentUser();
+        setSubmitting(false);
+      }
+    } catch (error) {}
+  };
 
   return (
     <Flex flexDirection="column" width="100wh" height="100vh" bg="gray.200" justifyContent="center" alignItems="center">

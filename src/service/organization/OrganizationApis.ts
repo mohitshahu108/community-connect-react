@@ -2,6 +2,14 @@ import api from "../../api/api";
 import { OrganizationTypes } from "./OrganizationTypes";
 
 class OrganizationApis {
+  static async updateProfilePic(formData: FormData) {
+    try {
+      const response: OrganizationTypes.Organization = await api.uploadFile({ url: "/organizations/profile_pic", formData });
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
   static async getOrganizationByUserId(userId: number) {
     try {
       const response: OrganizationTypes.Organization = await api.get({ url: `/organizations/byUserId/${userId}` });

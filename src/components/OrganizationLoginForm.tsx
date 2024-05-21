@@ -14,7 +14,8 @@ import {
   InputLeftAddon,
   FormErrorMessage,
   Card,
-  Square
+  Square,
+  useToast
 } from "@chakra-ui/react";
 import { FaUserAlt, FaLock } from "react-icons/fa";
 import { Formik, Form, Field, FieldProps, FormikHelpers } from "formik";
@@ -38,15 +39,23 @@ const OrganizationLoginForm = observer(() => {
   const auth = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const toast = useToast();
 
   const getCurrentUser = async () => {
     try {
-      const result = await UserApis.currentUser();
+      const result = await UserApis.currentUser(); 
       store.setCurrentUser(result);
       auth?.login(result);
       navigate(routes.organization.profile);
     } catch (error) {
       console.log("error", error);
+      toast({
+        title: "Error",
+        description: "Something went wrong.",
+        status: "error",
+        duration: 2000,
+        isClosable: true
+      })
     }
   };
 

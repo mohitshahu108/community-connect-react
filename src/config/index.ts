@@ -12,7 +12,7 @@ const config: {
     apiBaseUrl: "http://qa-backend-url/api/v1"
   },
   production: {
-    apiBaseUrl: "http://ec2-65-0-91-228.ap-south-1.compute.amazonaws.com:8080//api/v1"
+    apiBaseUrl: "http://ec2-65-0-91-228.ap-south-1.compute.amazonaws.com:8080/api/v1"
   }
 };
 
