@@ -27,6 +27,7 @@ import UserApis from "../service/user/UserApis";
 import useStore from "../stores/useStore";
 import { useAuth } from "../hooks/useAuth";
 import { observer } from "mobx-react";
+import useToaster from "../hooks/useToaster";
 
 // Define validation schema using Yup
 const LoginSchema = Yup.object().shape({
@@ -40,6 +41,7 @@ const OrganizationLoginForm = observer(() => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const toast = useToast();
+  const {handleError, handleSuccess} = useToaster();
 
   const getCurrentUser = async () => {
     try {
@@ -48,14 +50,8 @@ const OrganizationLoginForm = observer(() => {
       auth?.login(result);
       navigate(routes.organization.profile);
     } catch (error) {
-      console.log("error", error);
-      toast({
-        title: "Error",
-        description: "Something went wrong.",
-        status: "error",
-        duration: 2000,
-        isClosable: true
-      })
+      console.log(error);
+      handleError(error);
     }
   };
 
@@ -69,9 +65,11 @@ const OrganizationLoginForm = observer(() => {
         store.saveToLocalStorage(response.data);
         await getCurrentUser();
       }
+      handleSuccess("Login Successful");
       setSubmitting(false);
     } catch (error) {
       console.log("error", error);
+      handleError(error);
     }
   };
   const handleShowClick = () => setShowPassword(!showPassword);

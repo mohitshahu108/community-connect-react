@@ -10,9 +10,10 @@ class ProjectApis {
       throw error;
     }
   };
-  static getProjectList = async () => {
+  static getProjectList = async ({organizationId}: {organizationId?: number} ={}) => {
     try {
-      const result: ProjectTypes.ProjectList = await api.get({ url: "projects" });
+      const url = organizationId ? `projects?organizationId=${organizationId}` : "projects";
+      const result: ProjectTypes.ProjectList = await api.get({ url });
       return result;
     } catch (error) {
       throw error;

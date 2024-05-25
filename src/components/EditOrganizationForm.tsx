@@ -69,7 +69,7 @@ const EditOrganizationForm = observer(({ isOpen, onClose }: EditOrganizationForm
           >
             {({ isSubmitting, handleSubmit, errors, touched }) => (
               <Form onSubmit={handleSubmit} noValidate>
-                <DrawerBody>
+                <DrawerBody scrollBehavior={"smooth"} height={"80vh"}>
                   <Stack spacing={4} p="1rem">
                     <Field name="name">
                       {({ field }: FieldProps) => (

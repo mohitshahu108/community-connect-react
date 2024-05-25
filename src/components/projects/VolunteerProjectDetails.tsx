@@ -1,54 +1,47 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import ProjectApis from "../../service/Project/ProjectApis";
 import { ProjectTypes } from "../../service/Project/ProjectTypes";
-import {
-  Box,
-  Breadcrumb,
-  BreadcrumbItem,
-  Button,
-  Tooltip,
-  useToast,
-  VStack
-} from "@chakra-ui/react";
+import { Box, Breadcrumb, BreadcrumbItem, Button, Tooltip, VStack } from "@chakra-ui/react";
 import routes from "../../routes";
 import { observer } from "mobx-react";
 import useStore from "../../stores/useStore";
 import { FaHandPointRight } from "react-icons/fa";
 import ApplicationApis from "../../service/application/ApplicationApis";
 import { ApplicationStatuses } from "../../service/application/ApplicationTypes";
+import useToaster from "../../hooks/useToaster";
 
 const VolunteerProjectDetails = observer(() => {
   const { id } = useParams<{ id: string }>();
-  const toast = useToast();
   const [project, setProject] = React.useState<ProjectTypes.Project | null>(null);
   const store = useStore();
-  const isAlreadyApplied = project?.applications?.findIndex((app) => app.volunteerId === store?.currentVolunteer?.id) !== -1;
-  const isAlreadyAppliedApproved = project?.volunteers?.findIndex((vol) => vol.id === store?.currentVolunteer?.id) !== -1;
+  const isAlreadyApplied =
+    project?.applications?.findIndex((app) => app.volunteer.id === store?.currentVolunteer?.id) !== -1;
+  const isAlreadyAppliedApproved =
+    project?.volunteers?.findIndex((vol) => vol.id === store?.currentVolunteer?.id) !== -1;
+  const { handleError, handleSuccess } = useToaster();
 
   const getProjectDetails = async () => {
-    // get project details from server
-    const getProjectProm = ProjectApis.getProjectById(Number(id));
-    const project = await getProjectProm;
-    setProject(project);
-    // setProject(projectDetails);
+    try {
+      // get project details from server
+      const getProjectProm = ProjectApis.getProjectById(Number(id));
+      const project = await getProjectProm;
+      setProject(project);
+    } catch (error) {
+      console.log(error);
+      handleError(error);
+    }
   };
 
   const onApplyOnProject = async (project: ProjectTypes.Project) => {
     try {
       if (project?.id && store.currentVolunteer?.id) {
-        const applicationProm = ApplicationApis.apply({
+        const result = await ApplicationApis.apply({
           projectId: project.id,
           volunteerId: store.currentVolunteer?.id,
           status: ApplicationStatuses.PENDING
         });
-        const result = await applicationProm;
-        toast.promise(applicationProm, {
-          success: { title: "Success", description: "Applied on project" },
-          error: { title: "Error", description: "Something wrong" },
-          loading: { title: "Loading", description: "Please wait" }
-        });
-
+        handleSuccess("Applied on project");
         getProjectDetails();
       }
     } catch (error) {

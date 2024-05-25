@@ -25,6 +25,7 @@ import UserApis from "../../service/user/UserApis";
 import useStore from "../../stores/useStore";
 import { useAuth } from "../../hooks/useAuth";
 import AuthApis from "../../service/auth/AuthApis";
+import useToaster from "../../hooks/useToaster";
 
 // Define validation schema using Yup
 const LoginSchema = Yup.object().shape({
@@ -37,6 +38,7 @@ const VolunteerLoginForm = () => {
   const auth = useAuth();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const { handleError, handleSuccess } = useToaster();
 
   const getCurrentUser = async () => {
     try {
@@ -46,6 +48,7 @@ const VolunteerLoginForm = () => {
       navigate(routes.volunteer.profile);
     } catch (error) {
       console.log("error", error);
+      handleError(error);
     }
   };
 
@@ -58,10 +61,12 @@ const VolunteerLoginForm = () => {
       if (response.data) {
         store.saveToLocalStorage(response.data);
         await getCurrentUser();
+        handleSuccess("Login Successful");
       }
       setSubmitting(false);
     } catch (error) {
       console.log("error", error);
+      handleError(error, "Login Failed");
     }
   };
 

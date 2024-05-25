@@ -6,6 +6,7 @@ import EditVolunteerForm from "./EditVolunteersProfileForm";
 import { observer } from "mobx-react";
 import ProfilePhotoPicker from "../../components/common/ProfilePhotoPicker";
 import Role from "../../service/auth/Role";
+import useToaster from "../../hooks/useToaster";
 
 const VolunteerProfile = observer(() => {
   const store = useStore();
@@ -13,6 +14,7 @@ const VolunteerProfile = observer(() => {
   const currentVolunteer = store.currentVolunteer;
   const [isVolunteerFormOpen, setIsVolunteerFormOpen] = useState(false);
   const [imageLoading, setImageLoading] = useState<boolean>(false);
+  const { handleSuccess, handleError } = useToaster();
 
   const getCurrentVolunteer = async () => {
     try {
@@ -22,6 +24,7 @@ const VolunteerProfile = observer(() => {
       }
     } catch (error) {
       console.log("error", error);
+      handleError(error);
     }
   };
 
@@ -50,9 +53,11 @@ const VolunteerProfile = observer(() => {
       // no reload is required just updating currentUser
       setImageLoading(false);
       onSaveSuccessCallback();
+      handleSuccess("Profile photo updated successfully");
     } catch (error) {
       setImageLoading(false);
       console.log(error);
+      handleError(error);
     }
   };
 

@@ -26,6 +26,7 @@ import Role from "../service/auth/Role";
 import useStore from "../stores/useStore";
 import UserApis from "../service/user/UserApis";
 import { useAuth } from "../hooks/useAuth";
+import useToaster from "../hooks/useToaster";
 
 // Define validation schema using Yup
 const SignupSchema = Yup.object().shape({
@@ -36,6 +37,7 @@ const SignupSchema = Yup.object().shape({
 });
 
 const OrganizationSignupForm = () => {
+  const { handleError, handleSuccess } = useToaster();
   const store = useStore();
   const auth = useAuth();
   const [showPassword, setShowPassword] = useState(false);
@@ -49,6 +51,7 @@ const OrganizationSignupForm = () => {
       auth?.login(result);
     } catch (error) {
       console.log("error", error);
+      handleError(error);
     }
   }
 
@@ -63,8 +66,12 @@ const OrganizationSignupForm = () => {
         store.saveToLocalStorage(response.data);
         await getCurrentUser();
         setSubmitting(false);
+        handleSuccess("Organization signup success");
       }
-    } catch (error) {}
+    } catch (error) {
+      setSubmitting(false);
+      handleError(error);
+    } 
   };
 
   return (

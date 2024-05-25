@@ -6,6 +6,7 @@ import useStore from "../stores/useStore";
 import EditOrganizationForm from "../components/EditOrganizationForm";
 import ProfilePhotoPicker from "../components/common/ProfilePhotoPicker";
 import Role from "../service/auth/Role";
+import useToaster from "../hooks/useToaster";
 
 const OrganizationProfile = observer(() => {
   const store = useStore();
@@ -13,7 +14,7 @@ const OrganizationProfile = observer(() => {
   const currentUser = store.currentUser;
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [imageLoading, setImageLoading] = useState<boolean>(false);
-  const toast = useToast();
+  const { handleSuccess, handleError } = useToaster();
 
   const getCurrentOrganization = async () => {
     try {
@@ -23,12 +24,7 @@ const OrganizationProfile = observer(() => {
       }
     } catch (error: any) {
       console.log("error", error);
-      toast({
-        title: "Error",
-        description: error.message,
-        duration: 3000,
-        status: "error"
-      })
+      handleError(error);  
     }
   };
 
@@ -57,9 +53,11 @@ const OrganizationProfile = observer(() => {
       // no reload is required just updating currentUser
       setImageLoading(false);
       onSaveSuccessCallback();
+      handleSuccess("Profile photo updated successfully");
     } catch (error) {
       setImageLoading(false);
       console.log(error);
+      handleError(error);
     }
   };
 

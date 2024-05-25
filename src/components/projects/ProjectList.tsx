@@ -16,45 +16,49 @@ import { Link } from "react-router-dom";
 import routes from "../../routes";
 import ApplicationApis from "../../service/application/ApplicationApis";
 import { ApplicationStatuses, ApplicationTypes } from "../../service/application/ApplicationTypes";
+import useToaster from "../../hooks/useToaster";
 
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
 // Create new GridExample component
 const ProjectList = observer(() => {
-  const toast = useToast();
   const store = useStore();
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editProjectId, setEditProjectId] = useState<number>();
   const projectList: ProjectTypes.ProjectList = store.listProject;
+  const {handleError, handleSuccess} = useToaster();
   
   const getProjectList = useCallback(async () => {
     try {
-      const result = await ProjectApis.getProjectList();
+
+      let result: ProjectTypes.ProjectList; 
+     if(store.isOrganization){
+      result = await ProjectApis.getProjectList({organizationId: store.currentOrganization?.id});
+     } else{
+      result = await ProjectApis.getProjectList();
+     }
       store.setProjectList(result);
     } catch (error) {
       console.log(error);
+      handleError(error);
     }
   }, [store]);
 
   const onApplyOnProject = async (project: ProjectTypes.Project) => {
     try {
       if (project?.id && store.currentVolunteer?.id) {
-        const applicationProm = ApplicationApis.apply({
+        const result = await ApplicationApis.apply({
           projectId: project.id,
           volunteerId: store.currentVolunteer?.id,
           status: ApplicationStatuses.PENDING
-        });
-        toast.promise(applicationProm, {
-          success: { title: "Success", description: "Applied on project" },
-          error: { title: "Error", description: "Something wrong" },
-          loading: { title: "Loading", description: "Please wait" }
-        });
-        const result = await applicationProm; 
+        }); 
+        handleSuccess("Applied on project");
         getProjectList();
       }
     } catch (error) {
       console.log(error);
+      handleError(error);
     }
   };
 
@@ -131,7 +135,7 @@ const ProjectList = observer(() => {
             await getProjectList();
           };
 
-          const isAlreadyApplied = data?.applications?.findIndex((app: ApplicationTypes.Application) => app.volunteerId === store?.currentVolunteer?.id) !== -1;
+          const isAlreadyApplied = data?.applications?.findIndex((app: ApplicationTypes.Application) => app.volunteer.id === store?.currentVolunteer?.id) !== -1;
           const isAlreadyAppliedApproved = data?.volunteers?.findIndex((vol: any) => vol.id === store?.currentVolunteer?.id) !== -1;
 
           return (

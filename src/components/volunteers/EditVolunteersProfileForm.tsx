@@ -20,6 +20,7 @@ import useStore from "../../stores/useStore";
 import { VolunteerTypes } from "../../service/volunteer/VolunteerTypes";
 import VolunteerApis from "../../service/volunteer/VolunteerApis";
 import SkillsPicker from "../../components/skills/SkillsPicker";
+import useToaster from "../../hooks/useToaster";
 
 type EditVolunteerFormPropsType = {
   isOpen: boolean;
@@ -28,12 +29,20 @@ type EditVolunteerFormPropsType = {
 
 const EditVolunteerForm = observer(({ isOpen, onClose }: EditVolunteerFormPropsType) => {
   const store = useStore();
+  const { handleError, handleSuccess } = useToaster();
+
   const handleSubmit = async (values: VolunteerTypes.Volunteer, actions: FormikHelpers<VolunteerTypes.Volunteer>) => {
-    if (store?.currentVolunteer?.id) {
-      const result = await VolunteerApis.editVolunteer(values.id, values);
-      store.setCurrentVolunteer(result);
-      actions.setSubmitting(false);
-      onClose();
+    try {
+      if (store?.currentVolunteer?.id) {
+        const result = await VolunteerApis.editVolunteer(values.id, values);
+        store.setCurrentVolunteer(result);
+        actions.setSubmitting(false);
+        onClose();
+        handleSuccess("Volunteer updated successfully");
+      }
+    } catch (error) {
+      console.log("error", error);
+      handleError(error);
     }
   };
 
@@ -61,7 +70,7 @@ const EditVolunteerForm = observer(({ isOpen, onClose }: EditVolunteerFormPropsT
           >
             {({ isSubmitting, handleSubmit, errors, touched }) => (
               <Form onSubmit={handleSubmit} noValidate>
-                <DrawerBody>
+                <DrawerBody height={"80vh"} scrollBehavior={"smooth"}>
                   <Stack spacing={4} p="1rem">
                     <Field name="firstname">
                       {({ field }: FieldProps) => (
