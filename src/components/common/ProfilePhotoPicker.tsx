@@ -3,6 +3,7 @@ import { Avatar, Box, Button, Flex, Image, Spinner, Stack, Text } from "@chakra-
 import { IoMdClose } from "react-icons/io";
 import { MdOutlineFileUpload } from "react-icons/md";
 import { MdCamera } from "react-icons/md";
+import { observer } from "mobx-react";
 
 type ProfilePhotoPickerPropsType = {
   disabled?: boolean;
@@ -14,7 +15,7 @@ type ProfilePhotoPickerPropsType = {
   avatarName: string;
 };
 
-const ProfilePhotoPicker = ({
+const ProfilePhotoPicker = observer(({
   disabled = false,
   sourceUrl,
   onChangeImageCallBack = (file: File) => {},
@@ -57,9 +58,9 @@ const ProfilePhotoPicker = ({
     <Box>
       <Stack direction="row" align="center" justify="center">
         <Stack align="center" justify="center">
-          {loading && <Spinner thickness="4px" speed="0.65s" emptyColor="gray.200" color="blue.500" size="xl" />}
 
           <Avatar size={"2xl"} src={newImage || imageUrl} name={avatarName} />
+          {loading && <Spinner thickness="4px" speed="0.65s" emptyColor="gray.200" color="blue.500" size="xl" />}
 
           <input
             ref={fileInputRef}
@@ -111,6 +112,6 @@ const ProfilePhotoPicker = ({
       </Stack>
     </Box>
   );
-};
+});
 
 export default ProfilePhotoPicker;

@@ -17,7 +17,7 @@ class AuthApis {
       });
       return { data: result };
     } catch (error) {
-      return { errorMessage: `Error during registration: ${error}` };
+      throw error;
     }
   }
 
@@ -31,7 +31,7 @@ class AuthApis {
       });
       return { data: response };
     } catch (error) {
-      return { errorMessage: `Error during authentication: ${error}` };
+      throw error;
     }
   };
 }

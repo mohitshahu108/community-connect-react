@@ -48,7 +48,6 @@ const OrganizationLoginForm = observer(() => {
       const result = await UserApis.currentUser(); 
       store.setCurrentUser(result);
       auth?.login(result);
-      navigate(routes.organization.profile);
     } catch (error) {
       console.log(error);
       handleError(error);
@@ -64,9 +63,9 @@ const OrganizationLoginForm = observer(() => {
       if (response.data) {
         store.saveToLocalStorage(response.data);
         await getCurrentUser();
+        handleSuccess("Login Successful");
+        setSubmitting(false);
       }
-      handleSuccess("Login Successful");
-      setSubmitting(false);
     } catch (error) {
       console.log("error", error);
       handleError(error);

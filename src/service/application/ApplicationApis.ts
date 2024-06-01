@@ -31,7 +31,7 @@ class ApplicationApis {
           });
           return { data: response };
         } catch (error) {
-          return { errorMessage: `Error during  applying: ${error}` };
+          throw error;
         }
       };
 

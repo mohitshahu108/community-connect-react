@@ -47,8 +47,14 @@ export class Store {
 
   currentUser: UserTypes.User | null = this.getDefaultCurrentUser();
 
-  get fullName() {
-    return this.currentUser?.firstname + " " + this.currentUser?.lastname;
+  get fullName(): string {
+  const fullName = this.isOrganization
+    ? this.currentOrganization?.name
+    : this.currentVolunteer?.firstname + " " + this.currentVolunteer?.lastname;
+    if(fullName){
+      return fullName
+    }
+    return "not found";
   }
 
   currentOrganization: OrganizationTypes.Organization | null = this.getDefaultCurrentOrganization();
